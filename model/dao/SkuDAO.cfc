@@ -61,7 +61,7 @@ Notes:
 		<cfelse>
 			<cfset hql &= "ss.product.productID = :productID" />
 		</cfif>
-		
+
 		<cfset hql &= " AND (
 				EXISTS( SELECT a.orderItemID as id FROM SlatwallOrderItem a WHERE sku.skuID = ss.skuID )
 				  OR
@@ -83,7 +83,7 @@ Notes:
 			  	  OR
 			  	EXISTS( SELECT a.vendorOrderItemID as id FROM SlatwallVendorOrderItem a WHERE stock.sku.skuID = ss.skuID )
 			  )" />
-		
+
 		<cfif structKeyExists(arguments, "skuID") && !isNull(arguments.skuID)>
 			<cfset var results = ormExecuteQuery(hql, {skuID = arguments.skuID}) />
 		<cfelse>
@@ -105,6 +105,7 @@ Notes:
 		
 	// returns product skus which matches ALL options (list of optionIDs) that are passed in
 	public any function getSkusBySelectedOptions(required string selectedOptions, string productID) {
+		
 		var params = [];
 		var hql = "select distinct sku from SlatwallSku as sku 
 					inner join sku.options as opt 
@@ -157,6 +158,7 @@ Notes:
 				hql &= "INNER JOIN FETCH sku.options option ";
 			} else if (arguments.product.getBaseProductType() eq "subscription") {
 				hql &= "INNER JOIN sku.subscriptionTerm st ";
+				hql &= "INNER JOIN sku.orderItems oi ";
 				hql &= "INNER JOIN FETCH sku.subscriptionBenefits sb ";
 			}
 		}
